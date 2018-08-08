@@ -5,6 +5,10 @@ from random import shuffle
 #import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
+fig_size = plt.rcParams["figure.figsize"]
+fig_size[0] = 6
+fig_size[1] = 5.1
+plt.rcParams["figure.figsize"] = fig_size
 
 #import plotly.plotly as py
 from matplotlib.ticker import NullFormatter  # useful for `logit` scale
@@ -17,7 +21,7 @@ def make_company_ranklist(type_of_rl):
 	company_db_aggr_2=[] #salary plus reputation (0.6,0.4)
 	company_db_aggr_3=[] #salary plus reputation plus difficulty of interview (0.5,0.35,0.15)
 
-	for i in range(0,400):
+	for i in range(0,200):
 		#salary(<10,10-15,15-20,20-25,25-30,30-35,35-40)
 		company_db[i]=[np.random.choice(np.arange(1,8),p=(0.05,0.3,0.2,0.2,0.15,0.05,0.05)),np.random.choice(np.arange(1,6),p=(0.2,0.2,0.3,0.25,0.05)),np.random.choice(np.arange(1,6),p=(0.1,0.1,0.5,0.2,0.1))]
 
@@ -80,16 +84,16 @@ def def_happiness_point(student_final_ranklist,company_final_ranklist):
 		#happiness_point.append((student_final_ranklist[i][0],company_final_ranklist[9][0]))
 
 	for i in range(0,50):
-		happiness_point.append((student_final_ranklist[i][0],company_final_ranklist[19][0]))
+		happiness_point.append((student_final_ranklist[i][0],company_final_ranklist[9][0]))
 
 
 
 	for i in range(1,17):
 		for j in range(0,50):
-			happiness_point.append((student_final_ranklist[50*i+j][0],company_final_ranklist[19+i*20][0]))
+			happiness_point.append((student_final_ranklist[50*i+j][0],company_final_ranklist[9+i*10][0]))
 
 	for i in range(850,1000):
-		happiness_point.append((student_final_ranklist[i][0],company_final_ranklist[399][0]))
+		happiness_point.append((student_final_ranklist[i][0],company_final_ranklist[199][0]))
 
 	
 	# for i in happiness_point:
@@ -104,6 +108,51 @@ def def_happiness_point(student_final_ranklist,company_final_ranklist):
 	# 	print i
 	return happiness_point_list_sorted
 
+def make_expected_stud_pref_list(company_final_ranklist):
+	#import company_final_ranklist from ranking_companies
+	company_order=[]
+	for i in company_final_ranklist:
+		company_order.append(i[0])
+
+	#testing
+	#company_order=[]
+	#for i in range(0,200):
+	#	company_order.append(i)	
+	#shuffle(company_order)
+
+	company_order_1=[]
+	company_order_2=[]
+	company_order_3=[]
+	company_order_4=[]
+	company_order_5=[]
+	company_order_1=company_order[0:40]
+	company_order_2=company_order[40:80]
+	company_order_3=company_order[80:120]
+	company_order_4=company_order[120:160]
+	company_order_5=company_order[160:200]
+	
+
+
+
+
+	#print company_order_1
+	student_pref_list=[]
+	for i in range(0,1000):
+		# company_order_i=list(company_order)
+		shuffle(company_order_1)
+		shuffle(company_order_2)
+		shuffle(company_order_3)
+		shuffle(company_order_4)
+		shuffle(company_order_5)
+		
+		# shuffle(company_order_i)
+		student_pref_list.append(company_order_1+company_order_2+company_order_3+company_order_4+company_order_5)
+		# student_pref_list.append(company_order_i)
+	# for i in range(0,10):
+	# 	print(i," :::this is the normal (non SPC) preference list of",i, "::: ", student_pref_list[i])
+	# 	print
+	# 	print
+	return student_pref_list
 
 def make_stud_pref_list(company_final_ranklist):
 	#import company_final_ranklist from ranking_companies
@@ -158,8 +207,8 @@ def make_seq_stud_pref_list(company_final_ranklist, student_final_ranklist):
 		
 		seq_part=[]
 		non_seq_part=[]
-		seq_part=company_order[int(i/(2.5)):len(company_order)]
-		non_seq_part=company_order[0:int(i/(2.5))]
+		seq_part=company_order[int(i/(5)):len(company_order)]
+		non_seq_part=company_order[0:int(i/(5))]
 
 		for j in non_seq_part:
 			seq_part.insert(random.randint(0, len(seq_part)), j)
@@ -245,7 +294,7 @@ def match_dream(student_final_ranklist,company_final_ranklist,stud_pref_list):
 			# print student_index
 			# print("stud_pref_list[student_index].index(company_alloted)",stud_pref_list[student_index].index(company_alloted))
 			# print("stud_pref_list[student_index].index(current_company)",stud_pref_list[student_index].index(current_company))
-			#print student_index
+			# print student_index
 			dream_option_already_used=0
 			for p in oldies_placement:
 				if p[0]==y[0]:
@@ -337,7 +386,7 @@ def cal_rank_efficiency(student_selected_list,stud_pref_list):
 		company_alloted=i[2]
 		sum_ranks+=stud_pref_list[student_index].index(company_alloted)
 
-	return float(float(sum_ranks)/float(len(student_selected_list)))
+	return float(float((sum_ranks)+200*(1000-total_students_placed))/1000)
 
 def find_stability(student_selected_list,stud_pref_list):
 	blocking_pairs=0
@@ -369,12 +418,12 @@ def calc_happiness_index(student_selected_list,happiness_point_list,stud_pref_li
 			above_hp+=1
 			
 	#print ("above hp::::",above_hp)
-	return float(float(above_hp)/float(total_students_placed))
+	return float(float(above_hp)/1000)
 
 def find_companies_lost(oldies_placement):
 	people_leftoffer_list=list(oldies_placement)
 	company_recruits=[]
-	for i in range(0,400):
+	for i in range(0,200):
 		company_recruits.append(5)
 
 	for i in people_leftoffer_list:
@@ -466,157 +515,205 @@ def main():
 # 	plt.grid(True)
 # 	plt.show()
 	
-
+	companies_disappointed_normal_expected_sum=0
 	companies_disappointed_normal_sum=0
 	companies_disappointed_normal_spc_sum=0
+	companies_disappointed_dream_expected_sum=0
 	companies_disappointed_dream_sum=0
 	companies_disappointed_dream_spc_sum=0
 
+	rank_eff_normal_expected_sum=0
 	rank_eff_normal_sum=0
 	rank_eff_normal_spc_sum=0
+	rank_eff_dream_expected_sum=0
 	rank_eff_dream_sum=0
 	rank_eff_dream_spc_sum=0
 
+	
+	blocking_pairs_normal_expected_sum=0
 	blocking_pairs_normal_sum=0
 	blocking_pairs_normal_spc_sum=0
+	blocking_pairs_dream_expected_sum=0
 	blocking_pairs_dream_sum=0
 	blocking_pairs_dream_spc_sum=0
 
+	happiness_index_normal_expected_sum=0
 	happiness_index_normal_sum=0
 	happiness_index_normal_spc_sum=0
+	happiness_index_dream_expected_sum=0
 	happiness_index_dream_sum=0
 	happiness_index_dream_spc_sum=0
 
+	
+	total_st_placed_normal_expected_sum=0
 	total_st_placed_normal_sum=0
 	total_st_placed_normal_spc_sum=0
+	total_st_placed_dream_expected_sum=0
 	total_st_placed_dream_sum=0
 	total_st_placed_dream_spc_sum=0
 
+	oldies_placement_expected_sum=0
 	oldies_placement_sum=0
 	oldies_placement_spc_sum=0
 
+	avg_gain_normal_expected_sum=0
 	avg_gain_normal_sum=0
 	avg_gain_normal_spc_sum=0
+	avg_gain_dream_expected_sum=0
 	avg_gain_dream_sum=0
 	avg_gain_dream_spc_sum=0
 
+	highest_gain_normal_expected_sum=0
 	highest_gain_normal_sum=0
 	highest_gain_normal_spc_sum=0
+	highest_gain_dream_expected_sum=0
 	highest_gain_dream_sum=0
 	highest_gain_dream_spc_sum=0
 
+	highest_loss_normal_expected_sum=0
 	highest_loss_normal_sum=0
 	highest_loss_normal_spc_sum=0
+	highest_loss_dream_expected_sum=0
 	highest_loss_dream_sum=0
 	highest_loss_dream_spc_sum=0
 
 
-	#for i in range (0,1000):
+	for i in range (0,1000):
 
-		#print ("iteration ::::: ",i)
+		print ("iteration ::::: ",i)
 
-	company_f_ranklist= make_company_ranklist(3)
-	student_f_ranklist= make_student_ranklist()
-	happiness_point_list= def_happiness_point(student_f_ranklist,company_f_ranklist)
-	stud_pref_list= make_stud_pref_list(company_f_ranklist)
-	seq_stud_pref_list=make_seq_stud_pref_list(company_f_ranklist,student_f_ranklist)
-
-
-	
-	
-	f_normal_match= match_normal(student_f_ranklist, company_f_ranklist)
-	f_normal_match_spc=list(f_normal_match)
-	(oldies_placement, people_dreamt, f_dream_match)=match_dream(student_f_ranklist,company_f_ranklist,stud_pref_list)
-	(oldies_placement_spc, people_dreamt_spc, f_dream_match_spc)=match_dream(student_f_ranklist,company_f_ranklist,seq_stud_pref_list)
-
-	(avg_gain_normal,highest_gain_normal,highest_loss_normal) =  fairness(f_normal_match, student_f_ranklist)
-	(avg_gain_normal_spc,highest_gain_normal_spc,highest_loss_normal_spc) =  fairness(f_normal_match_spc, student_f_ranklist)
-	(avg_gain_dream,highest_gain_dream,highest_loss_dream) =  fairness(f_dream_match, student_f_ranklist)
-	(avg_gain_dream_spc,highest_gain_dream_spc,highest_loss_dream_spc) =  fairness(f_dream_match_spc, student_f_ranklist)
+		company_f_ranklist= make_company_ranklist(3)
+		student_f_ranklist= make_student_ranklist()
+		happiness_point_list= def_happiness_point(student_f_ranklist,company_f_ranklist)
+		stud_expected_pref_list=make_expected_stud_pref_list(company_f_ranklist)
+		stud_pref_list= make_stud_pref_list(company_f_ranklist)
+		seq_stud_pref_list=make_seq_stud_pref_list(company_f_ranklist,student_f_ranklist)
 
 
-	companies_disappointed_normal=0
-	companies_disappointed_normal_spc=0
-	companies_disappointed_dream = find_companies_lost(oldies_placement)
-	companies_disappointed_dream_spc = find_companies_lost(oldies_placement_spc)
+		
+		
+		f_normal_match= match_normal(student_f_ranklist, company_f_ranklist)
+		f_normal_match_spc=list(f_normal_match)
+		f_normal_match_expected=list(f_normal_match)
+		(oldies_placement_expected, people_dreamt_expected, f_dream_match_expected)=match_dream(student_f_ranklist,company_f_ranklist,stud_expected_pref_list)
+		(oldies_placement, people_dreamt, f_dream_match)=match_dream(student_f_ranklist,company_f_ranklist,stud_pref_list)
+		(oldies_placement_spc, people_dreamt_spc, f_dream_match_spc)=match_dream(student_f_ranklist,company_f_ranklist,seq_stud_pref_list)
+
+		(avg_gain_normal_expected,highest_gain_normal_expected,highest_loss_normal_expected) =  fairness(f_normal_match_expected, student_f_ranklist)
+		(avg_gain_normal,highest_gain_normal,highest_loss_normal) =  fairness(f_normal_match, student_f_ranklist)
+		(avg_gain_normal_spc,highest_gain_normal_spc,highest_loss_normal_spc) =  fairness(f_normal_match_spc, student_f_ranklist)
+		(avg_gain_dream_expected,highest_gain_dream_expected,highest_loss_dream_expected) =  fairness(f_dream_match_expected, student_f_ranklist)
+		(avg_gain_dream,highest_gain_dream,highest_loss_dream) =  fairness(f_dream_match, student_f_ranklist)
+		(avg_gain_dream_spc,highest_gain_dream_spc,highest_loss_dream_spc) =  fairness(f_dream_match_spc, student_f_ranklist)
+
+		companies_disappointed_normal_expected=0
+		companies_disappointed_normal=0
+		companies_disappointed_normal_spc=0
+		companies_disappointed_dream_expected = find_companies_lost(oldies_placement_expected)
+		companies_disappointed_dream = find_companies_lost(oldies_placement)
+		companies_disappointed_dream_spc = find_companies_lost(oldies_placement_spc)
 
 
+		rank_eff_normal_expected=cal_rank_efficiency(f_normal_match_expected,stud_expected_pref_list)
+		rank_eff_normal=cal_rank_efficiency(f_normal_match,stud_pref_list)
+		rank_eff_normal_spc=cal_rank_efficiency(f_normal_match_spc,seq_stud_pref_list)
+		rank_eff_dream_expected=cal_rank_efficiency(f_dream_match_expected,stud_expected_pref_list)
+		rank_eff_dream=cal_rank_efficiency(f_dream_match,stud_pref_list)
+		rank_eff_dream_spc=cal_rank_efficiency(f_dream_match_spc,seq_stud_pref_list)
 
-	rank_eff_normal=cal_rank_efficiency(f_normal_match,stud_pref_list)
-	rank_eff_normal_spc=cal_rank_efficiency(f_normal_match_spc,seq_stud_pref_list)
-	rank_eff_dream=cal_rank_efficiency(f_dream_match,stud_pref_list)
-	rank_eff_dream_spc=cal_rank_efficiency(f_dream_match_spc,seq_stud_pref_list)
+		# print ("rank_eff_normal::",rank_eff_normal)
+		# print
+		# print ("rank_eff_dream::",rank_eff_dream)
 
-	print ("rank_eff_normal::",rank_eff_normal)
-	print
-	print ("rank_eff_dream::",rank_eff_dream)
+		
 
-	
-
-
-	blocking_pairs_normal=find_stability(f_normal_match,stud_pref_list)
-	blocking_pairs_normal_spc=find_stability(f_normal_match_spc,seq_stud_pref_list)
-	blocking_pairs_dream=find_stability(f_dream_match,stud_pref_list)
-	blocking_pairs_dream_spc=find_stability(f_dream_match_spc,seq_stud_pref_list)
-
-
-	happiness_index_normal=calc_happiness_index(f_normal_match,happiness_point_list,stud_pref_list)
-	happiness_index_normal_spc=calc_happiness_index(f_normal_match_spc,happiness_point_list,seq_stud_pref_list)
-	happiness_index_dream=calc_happiness_index(f_dream_match,happiness_point_list,stud_pref_list)
-	happiness_index_dream_spc=calc_happiness_index(f_dream_match_spc,happiness_point_list,seq_stud_pref_list)
-
-	total_st_placed_normal=len(f_normal_match)
-	total_st_placed_normal_spc=len(f_normal_match_spc)
-	total_st_placed_dream=len(f_dream_match)
-	total_st_placed_dream_spc=len(f_dream_match_spc)
+		blocking_pairs_normal_expected=find_stability(f_normal_match_expected,stud_expected_pref_list)
+		blocking_pairs_normal=find_stability(f_normal_match,stud_pref_list)
+		blocking_pairs_normal_spc=find_stability(f_normal_match_spc,seq_stud_pref_list)
+		blocking_pairs_dream_expected=find_stability(f_dream_match_expected,stud_expected_pref_list)
+		blocking_pairs_dream=find_stability(f_dream_match,stud_pref_list)
+		blocking_pairs_dream_spc=find_stability(f_dream_match_spc,seq_stud_pref_list)
 
 
-	#
-	#
-	#	
-	#summation of all simulations
-	companies_disappointed_normal_sum+=companies_disappointed_normal
-	companies_disappointed_normal_spc_sum+=companies_disappointed_normal_spc
-	companies_disappointed_dream_sum+=companies_disappointed_dream
-	companies_disappointed_dream_spc_sum+=companies_disappointed_dream_spc
+		happiness_index_normal_expected=calc_happiness_index(f_normal_match_expected,happiness_point_list,stud_expected_pref_list)
+		happiness_index_normal=calc_happiness_index(f_normal_match,happiness_point_list,stud_pref_list)
+		happiness_index_normal_spc=calc_happiness_index(f_normal_match_spc,happiness_point_list,seq_stud_pref_list)
+		happiness_index_dream_expected=calc_happiness_index(f_dream_match_expected,happiness_point_list,stud_expected_pref_list)
+		happiness_index_dream=calc_happiness_index(f_dream_match,happiness_point_list,stud_pref_list)
+		happiness_index_dream_spc=calc_happiness_index(f_dream_match_spc,happiness_point_list,seq_stud_pref_list)
 
-	rank_eff_normal_sum+=rank_eff_normal
-	rank_eff_normal_spc_sum+=rank_eff_normal_spc
-	rank_eff_dream_sum+=rank_eff_dream
-	rank_eff_dream_spc_sum+=rank_eff_dream_spc
+		total_st_placed_normal_expected=len(f_normal_match_expected)
+		total_st_placed_normal=len(f_normal_match)
+		total_st_placed_normal_spc=len(f_normal_match_spc)
+		total_st_placed_dream_expected=len(f_dream_match_expected)
+		total_st_placed_dream=len(f_dream_match)
+		total_st_placed_dream_spc=len(f_dream_match_spc)
 
-	blocking_pairs_normal_sum+=blocking_pairs_normal
-	blocking_pairs_normal_spc_sum+=blocking_pairs_normal_spc
-	blocking_pairs_dream_sum+=blocking_pairs_dream
-	blocking_pairs_dream_spc_sum+=blocking_pairs_dream_spc
 
-	happiness_index_normal_sum+=happiness_index_normal
-	happiness_index_normal_spc_sum+=happiness_index_normal_spc
-	happiness_index_dream_sum+=happiness_index_dream
-	happiness_index_dream_spc_sum+=happiness_index_dream_spc
+		#
+		#
+		#	
+		#summation of all simulations
+		companies_disappointed_normal_expected_sum+=companies_disappointed_normal_expected
+		companies_disappointed_normal_sum+=companies_disappointed_normal
+		companies_disappointed_normal_spc_sum+=companies_disappointed_normal_spc
+		companies_disappointed_dream_expected_sum+=companies_disappointed_dream_expected
+		companies_disappointed_dream_sum+=companies_disappointed_dream
+		companies_disappointed_dream_spc_sum+=companies_disappointed_dream_spc
 
-	total_st_placed_normal_sum+=total_st_placed_normal
-	total_st_placed_normal_spc_sum+=total_st_placed_normal_spc
-	total_st_placed_dream_sum+=total_st_placed_dream
-	total_st_placed_dream_spc_sum+=total_st_placed_dream_spc
+		rank_eff_normal_expected_sum+=rank_eff_normal_expected
+		rank_eff_normal_sum+=rank_eff_normal
+		rank_eff_normal_spc_sum+=rank_eff_normal_spc
+		rank_eff_dream_expected_sum+=rank_eff_dream_expected
+		rank_eff_dream_sum+=rank_eff_dream
+		rank_eff_dream_spc_sum+=rank_eff_dream_spc
 
-	oldies_placement_sum+=len(oldies_placement)
-	oldies_placement_spc_sum+=len(oldies_placement_spc)
+		blocking_pairs_normal_expected_sum+=blocking_pairs_normal_expected
+		blocking_pairs_normal_sum+=blocking_pairs_normal
+		blocking_pairs_normal_spc_sum+=blocking_pairs_normal_spc
+		blocking_pairs_dream_expected_sum+=blocking_pairs_dream_expected
+		blocking_pairs_dream_sum+=blocking_pairs_dream
+		blocking_pairs_dream_spc_sum+=blocking_pairs_dream_spc
 
-	avg_gain_normal_sum+=avg_gain_normal
-	avg_gain_normal_spc_sum+=avg_gain_normal_spc
-	avg_gain_dream_sum+=avg_gain_dream
-	avg_gain_dream_spc_sum+=avg_gain_dream_spc
+		happiness_index_normal_expected_sum+=happiness_index_normal_expected
+		happiness_index_normal_sum+=happiness_index_normal
+		happiness_index_normal_spc_sum+=happiness_index_normal_spc
+		happiness_index_dream_expected_sum+=happiness_index_dream_expected
+		happiness_index_dream_sum+=happiness_index_dream
+		happiness_index_dream_spc_sum+=happiness_index_dream_spc
 
-	highest_gain_normal_sum+=highest_gain_normal
-	highest_gain_normal_spc_sum+=highest_gain_normal_spc
-	highest_gain_dream_sum+=highest_gain_dream
-	highest_gain_dream_spc_sum+=highest_gain_dream_spc
+		total_st_placed_normal_expected_sum+=total_st_placed_normal_expected
+		total_st_placed_normal_sum+=total_st_placed_normal
+		total_st_placed_normal_spc_sum+=total_st_placed_normal_spc
+		total_st_placed_dream_expected_sum+=total_st_placed_dream_expected
+		total_st_placed_dream_sum+=total_st_placed_dream
+		total_st_placed_dream_spc_sum+=total_st_placed_dream_spc
 
-	highest_loss_normal_sum+=highest_loss_normal
-	highest_loss_normal_spc_sum+=highest_loss_normal_spc
-	highest_loss_dream_sum+=highest_loss_dream
-	highest_loss_dream_spc_sum+=highest_loss_dream_spc
+		oldies_placement_expected_sum+=len(oldies_placement_expected)
+		oldies_placement_sum+=len(oldies_placement)
+		oldies_placement_spc_sum+=len(oldies_placement_spc)
+
+		avg_gain_normal_expected_sum+=avg_gain_normal_expected
+		avg_gain_normal_sum+=avg_gain_normal
+		avg_gain_normal_spc_sum+=avg_gain_normal_spc
+		avg_gain_dream_expected_sum+=avg_gain_dream_expected
+		avg_gain_dream_sum+=avg_gain_dream
+		avg_gain_dream_spc_sum+=avg_gain_dream_spc
+
+		highest_gain_normal_expected_sum+=highest_gain_normal_expected
+		highest_gain_normal_sum+=highest_gain_normal
+		highest_gain_normal_spc_sum+=highest_gain_normal_spc
+		highest_gain_dream_expected_sum+=highest_gain_dream_expected
+		highest_gain_dream_sum+=highest_gain_dream
+		highest_gain_dream_spc_sum+=highest_gain_dream_spc
+
+		
+		highest_loss_normal_expected_sum+=highest_loss_normal_expected
+		highest_loss_normal_sum+=highest_loss_normal
+		highest_loss_normal_spc_sum+=highest_loss_normal_spc
+		highest_loss_dream_expected_sum+=highest_loss_dream_expected
+		highest_loss_dream_sum+=highest_loss_dream
+		highest_loss_dream_spc_sum+=highest_loss_dream_spc
 
 
 
@@ -625,21 +722,27 @@ def main():
 
 	N = 1
 	ind = np.arange(N)  # the x locations for the groups
-	width = 0.2      # the width of the bars
+	width = 0.04      # the width of the bars
 
 	fig, ax = plt.subplots()
-	rects1 = ax.bar(ind + width, rank_eff_normal_sum, width, color='dimgray')
-	rects2 = ax.bar(ind + 2*width, rank_eff_dream_sum, width, color='darkgray')
-	rects3 = ax.bar(ind + 3.5*width, rank_eff_normal_spc_sum, width, color='lightgray')
-	rects4 = ax.bar(ind + 4.5*width, rank_eff_dream_spc_sum, width, color='tan')
 
+	rects1 = ax.bar(1, rank_eff_normal_expected_sum/1000, align='center', color='white',edgecolor='black', hatch="o")
+	rects2 = ax.bar(2, rank_eff_dream_expected_sum/1000, align='center', color='white',edgecolor='black', hatch="|")
+	rects3 = ax.bar(4, rank_eff_normal_sum/1000, align='center', color='white',edgecolor='black', hatch=".")
+	rects4 = ax.bar(5, rank_eff_dream_sum/1000, align='center', color='white', edgecolor='black', hatch="*")
+	rects5 = ax.bar(7, rank_eff_normal_spc_sum/1000, align='center', color='white',edgecolor='black', hatch="X")
+	rects6 = ax.bar(8, rank_eff_dream_spc_sum/1000, align='center', color='white',edgecolor='black', hatch="+")
 	# add some text for labels, title and axes ticks
+	ax.set_ylim(top=150)
 	ax.set_ylabel('Rank Efficiency')
 	ax.set_title('Rank Efficiency Comparison')
-	ax.set_xticks(ind + width / 2)
-	ax.set_xticklabels((''))
+	
+	ax.set_xticks([1,2,4,5,7,8])
+	ax.set_xticklabels(['NE','DE','NR','DR','NSPC','DSPC'])
+	#ax.set_xticklabels((''))
+	ax.yaxis.grid(True)
 
-	ax.legend((rects1[0], rects2[0], rects3[0], rects4[0]), ('Normal Match',  'Dream Match', 'Normal Match with SPC', 'Dream Match with SPC'))
+	#ax.legend((rects1[0], rects2[0], rects3[0], rects4[0]), ('(a)',  '(b)', '(c)', '(d)'))
 
 	def autolabel(rects):
 	    """
@@ -655,45 +758,53 @@ def main():
 	autolabel(rects2)
 	autolabel(rects3)
 	autolabel(rects4)
+	autolabel(rects5)
+	autolabel(rects6)
+	plt.tight_layout()
 	plt.show()
 
 	#Fairness
-	N = 4
-	avggain=(avg_gain_normal_sum, avg_gain_dream_sum, avg_gain_normal_spc_sum, avg_gain_dream_spc_sum)
-	highestgain=(highest_gain_normal_sum, highest_gain_dream_sum, highest_gain_normal_spc_sum, highest_gain_dream_spc_sum)
-	highestloss=(-highest_loss_normal_sum, -highest_loss_dream_sum, -highest_loss_normal_spc_sum, -highest_loss_dream_spc_sum)
-	ind = np.arange(N)  # the x locations for the groups
-	width = 0.35      # the width of the bars
+	#----------
+	# N = 6
+	# avggain=(avg_gain_normal_expected_sum, avg_gain_dream_expected_sum, avg_gain_normal_sum, avg_gain_dream_sum, avg_gain_normal_spc_sum, avg_gain_dream_spc_sum)
+	# highestgain=(highest_gain_normal_expected_sum, highest_gain_dream_expected_sum, highest_gain_normal_sum, highest_gain_dream_sum, highest_gain_normal_spc_sum, highest_gain_dream_spc_sum)
+	# highestloss=(-highest_loss_normal_expected_sum, -highest_loss_dream_expected_sum, -highest_loss_normal_sum, -highest_loss_dream_sum, -highest_loss_normal_spc_sum, -highest_loss_dream_spc_sum)
+	# ind = np.arange(N)  # the x locations for the groups
+	# width = 0.35      # the width of the bars
 
-	fig, ax = plt.subplots()
-	rects1 = ax.bar(ind + width, avggain, width, color='dimgray')
-	rects2 = ax.bar(ind + 2*width, highestgain, width, color='darkgray')
-	rects3 = ax.bar(ind + 3*width, highestloss, width, color='lightgray')
-	#rects4 = ax.bar(ind + 4.5*width, rank_eff_dream_spc, width, color='tan')
+	# fig, ax = plt.subplots()
+	# rects1 = ax.bar(1, avggain, align='center', color='white',edgecolor='black', hatch="o")
+	# rects2 = ax.bar(2, highestgain, align='center', color='white',edgecolor='black', hatch="+")
+	# rects3 = ax.bar(3, highestloss, align='center', color='white',edgecolor='black', hatch="*")
+	# #rects4 = ax.bar(ind + 4.5*width, rank_eff_dream_spc, width, color='tan')
 
-	# add some text for labels, title and axes ticks
-	ax.set_ylabel('Score')
-	ax.set_title('Fairness Comparison')
-	ax.set_xticks(ind + width / 2)
-	ax.set_xticklabels((''))
+	# #ax.set_ylim(top=1000)
+	# # add some text for labels, title and axes ticks
+	# ax.set_ylabel('Score')
+	# ax.set_title('Fairness Comparison')
+	# # ax.set_xticks(ind + width / 2)
+	# # ax.set_xticklabels((''))
+	# ax.set_xticks([1,2,3])
+	# # ax.legend((rects1[0], rects2[0], rects3[0], rects4[0]), ('Avg Gain', 'Highest Gain in Rank', 'Greatest Loss in Rank'))
+	# ax.yaxis.grid(True)
 
-	ax.legend((rects1[0], rects2[0], rects3[0], rects4[0]), ('Avg Gain', 'Highest Gain in Rank', 'Greatest Loss in Rank'))
+	# def autolabel(rects):
+	#     """
+	#     Attach a text label above each bar displaying its height
+	#     """
+	#     for rect in rects:
+	#         height = rect.get_height()
+	#         ax.text(rect.get_x() + rect.get_width()/2., 1.03*height,
+	#                 '%d' % int(height),
+	#                 ha='center', va='bottom')
 
-	def autolabel(rects):
-	    """
-	    Attach a text label above each bar displaying its height
-	    """
-	    for rect in rects:
-	        height = rect.get_height()
-	        ax.text(rect.get_x() + rect.get_width()/2., 1.03*height,
-	                '%d' % int(height),
-	                ha='center', va='bottom')
-
-	autolabel(rects1)
-	autolabel(rects2)
-	autolabel(rects3)
-	#autolabel(rects4)
-	plt.show()
+	# autolabel(rects1)
+	# autolabel(rects2)
+	# autolabel(rects3)
+	# #autolabel(rects4)
+	# plt.tight_layout()
+	# plt.show()
+	#-------------
 
 
 	#Happiness Index
@@ -703,18 +814,23 @@ def main():
 	width = 0.2      # the width of the bars
 
 	fig, ax = plt.subplots()
-	rects1 = ax.bar(ind + width, (happiness_index_normal_sum)*100, width, color='dimgray')
-	rects2 = ax.bar(ind + 2*width, happiness_index_dream_sum*100, width, color='darkgray')
-	rects3 = ax.bar(ind + 3.5*width, happiness_index_normal_spc_sum*100, width, color='lightgray')
-	rects4 = ax.bar(ind + 4.5*width, happiness_index_dream_spc_sum*100, width, color='tan')
+	rects1 = ax.bar(1, (happiness_index_normal_expected_sum*100)/1000, align='center', color='white',edgecolor='black', hatch="o")
+	rects2 = ax.bar(2, (happiness_index_dream_expected_sum*100)/1000, align='center', color='white',edgecolor='black', hatch="|")
+	rects3 = ax.bar(4, (happiness_index_normal_sum*100)/1000, align='center', color='white',edgecolor='black', hatch=".")
+	rects4 = ax.bar(5, (happiness_index_dream_sum*100)/1000, align='center', color='white', edgecolor='black', hatch="*")
+	rects5 = ax.bar(7, (happiness_index_normal_spc_sum*100)/1000, align='center', color='white',edgecolor='black', hatch="X")
+	rects6 = ax.bar(8, (happiness_index_dream_spc_sum*100)/1000, align='center', color='white',edgecolor='black', hatch="+")
 
 	# add some text for labels, title and axes ticks
-	ax.set_ylabel('Happiness Index')
+	
+	ax.set_ylabel('"%" of Students Happy (Happiness Index)')
 	ax.set_title('Happiness Index Comparison')
-	ax.set_xticks(ind + width / 2)
-	ax.set_xticklabels((''))
+	ax.set_xticks([1,2,4,5,7,8])
+	ax.set_xticklabels(['NE','DE','NR','DR','NSPC','DSPC'])
+	#ax.set_xticklabels((''))
+	ax.yaxis.grid(True)
 
-	ax.legend((rects1[0], rects2[0], rects3[0], rects4[0]), ('Normal Match',  'Dream Match', 'Normal Match with SPC', 'Dream Match with SPC'))
+	#ax.legend((rects1[0], rects2[0], rects3[0], rects4[0]), ('(a)',  '(b)', '(c)', '(d)'))
 
 	def autolabel(rects):
 	    """
@@ -722,7 +838,7 @@ def main():
 	    """
 	    for rect in rects:
 	        height = rect.get_height()
-	        ax.text(rect.get_x() + rect.get_width()/2., 0.5*height,
+	        ax.text(rect.get_x() + rect.get_width()/2., 1.03*height,
 	                '%d' % int(height),
 	                ha='center', va='bottom')
 
@@ -730,6 +846,9 @@ def main():
 	autolabel(rects2)
 	autolabel(rects3)
 	autolabel(rects4)
+	autolabel(rects5)
+	autolabel(rects6)
+	plt.tight_layout()
 	plt.show()
 
 
@@ -740,18 +859,23 @@ def main():
 	width = 0.2      # the width of the bars
 
 	fig, ax = plt.subplots()
-	rects1 = ax.bar(ind + width, blocking_pairs_normal_sum, width, color='dimgray')
-	rects2 = ax.bar(ind + 2*width, blocking_pairs_dream_sum, width, color='darkgray')
-	rects3 = ax.bar(ind + 3.5*width, blocking_pairs_normal_spc_sum, width, color='lightgray')
-	rects4 = ax.bar(ind + 4.5*width, blocking_pairs_dream_spc_sum, width, color='tan')
+	rects1 = ax.bar(1, blocking_pairs_normal_expected_sum/1000, align='center', color='white',edgecolor='black', hatch="o")
+	rects2 = ax.bar(2, blocking_pairs_dream_expected_sum/1000, align='center', color='white',edgecolor='black', hatch="|")
+	rects3 = ax.bar(4, blocking_pairs_normal_sum/1000, align='center', color='white',edgecolor='black', hatch=".")
+	rects4 = ax.bar(5, blocking_pairs_dream_sum/1000, align='center', color='white', edgecolor='black', hatch="*")
+	rects5 = ax.bar(7, blocking_pairs_normal_spc_sum/1000, align='center', color='white',edgecolor='black', hatch="X")
+	rects6 = ax.bar(8, blocking_pairs_dream_spc_sum/1000, align='center', color='white',edgecolor='black', hatch="+")
 
 	# add some text for labels, title and axes ticks
-	ax.set_ylabel('Blocking Pairs')
+	ax.set_ylim(top=250)
+	ax.set_ylabel('"%" of Blocking Pairs')
 	ax.set_title('Stability Comparison')
-	ax.set_xticks(ind + width / 2)
-	ax.set_xticklabels((''))
+	ax.set_xticks([1,2,4,5,7,8])
+	ax.set_xticklabels(['NE','DE','NR','DR','NSPC','DSPC'])
+	#ax.set_xticklabels((''))
+	ax.yaxis.grid(True)
 
-	ax.legend((rects1[0], rects2[0], rects3[0], rects4[0]), ('Normal Match',  'Dream Match', 'Normal Match with SPC', 'Dream Match with SPC'))
+	#ax.legend((rects1[0], rects2[0], rects3[0], rects4[0]), ('(a)',  '(b)', '(c)', '(d)'))
 
 	def autolabel(rects):
 	    """
@@ -759,7 +883,7 @@ def main():
 	    """
 	    for rect in rects:
 	        height = rect.get_height()
-	        ax.text(rect.get_x() + rect.get_width()/2., 0.5*height,
+	        ax.text(rect.get_x() + rect.get_width()/2., 1.03*height,
 	                '%d' % int(height),
 	                ha='center', va='bottom')
 
@@ -767,6 +891,9 @@ def main():
 	autolabel(rects2)
 	autolabel(rects3)
 	autolabel(rects4)
+	autolabel(rects5)
+	autolabel(rects6)
+	plt.tight_layout()
 	plt.show()
 
 	#Companies Disappointed
@@ -776,18 +903,23 @@ def main():
 	width = 0.2      # the width of the bars
 
 	fig, ax = plt.subplots()
-	rects1 = ax.bar(ind + width, companies_disappointed_normal_sum, width, color='dimgray')
-	rects2 = ax.bar(ind + 2*width, companies_disappointed_dream_sum, width, color='darkgray')
-	rects3 = ax.bar(ind + 3.5*width, companies_disappointed_normal_spc_sum, width, color='lightgray')
-	rects4 = ax.bar(ind + 4.5*width, companies_disappointed_dream_spc_sum, width, color='tan')
+	rects1 = ax.bar(1, companies_disappointed_normal_expected_sum/1000, align='center', color='white',edgecolor='black', hatch="o")
+	rects2 = ax.bar(2, companies_disappointed_dream_expected_sum/1000, align='center', color='white',edgecolor='black', hatch="|")
+	rects3 = ax.bar(4, companies_disappointed_normal_sum/1000, align='center', color='white',edgecolor='black', hatch=".")
+	rects4 = ax.bar(5, companies_disappointed_dream_sum/1000, align='center', color='white', edgecolor='black', hatch="*")
+	rects5 = ax.bar(7, companies_disappointed_normal_spc_sum/1000, align='center', color='white',edgecolor='black', hatch="X")
+	rects6 = ax.bar(8, companies_disappointed_dream_spc_sum/1000, align='center', color='white',edgecolor='black', hatch="+")
 
 	# add some text for labels, title and axes ticks
-	ax.set_ylabel('No. of Companies Disappointed')
-	ax.set_title('Company Satisfaction Comparison')
-	ax.set_xticks(ind + width / 2)
-	ax.set_xticklabels((''))
+	ax.set_ylim(top=200)
+	ax.set_ylabel('Companies Lost')
+	ax.set_title('Companies Lost Comparison')
+	ax.set_xticks([1,2,4,5,7,8])
+	ax.set_xticklabels(['NE','DE','NR','DR','NSPC','DSPC'])
+	#ax.set_xticklabels((''))
+	ax.yaxis.grid(True)
 
-	ax.legend((rects1[0], rects2[0], rects3[0], rects4[0]), ('Normal Match',  'Dream Match', 'Normal Match with SPC', 'Dream Match with SPC'))
+	#ax.legend((rects1[0], rects2[0], rects3[0], rects4[0]), ('(a)',  '(b)', '(c)', '(d)'))
 
 	def autolabel(rects):
 	    """
@@ -795,7 +927,7 @@ def main():
 	    """
 	    for rect in rects:
 	        height = rect.get_height()
-	        ax.text(rect.get_x() + rect.get_width()/2., 0.5*height,
+	        ax.text(rect.get_x() + rect.get_width()/2., 1.03*height,
 	                '%d' % int(height),
 	                ha='center', va='bottom')
 
@@ -803,6 +935,9 @@ def main():
 	autolabel(rects2)
 	autolabel(rects3)
 	autolabel(rects4)
+	autolabel(rects5)
+	autolabel(rects6)
+	plt.tight_layout()
 	plt.show()
 
 	#Total Students Placed
@@ -811,18 +946,23 @@ def main():
 	width = 0.2      # the width of the bars
 
 	fig, ax = plt.subplots()
-	rects1 = ax.bar(ind + width, total_st_placed_normal_sum, width, color='dimgray')
-	rects2 = ax.bar(ind + 2*width, total_st_placed_dream_sum, width, color='darkgray')
-	rects3 = ax.bar(ind + 3.5*width, total_st_placed_normal_spc_sum, width, color='lightgray')
-	rects4 = ax.bar(ind + 4.5*width, total_st_placed_dream_spc_sum, width, color='tan')
+	rects1 = ax.bar(1, total_st_placed_normal_expected_sum/1000, align='center', color='white',edgecolor='black', hatch="o")
+	rects2 = ax.bar(2, total_st_placed_dream_expected_sum/1000, align='center', color='white',edgecolor='black', hatch="|")
+	rects3 = ax.bar(4, total_st_placed_normal_sum/1000, align='center', color='white',edgecolor='black', hatch=".")
+	rects4 = ax.bar(5, total_st_placed_dream_sum/1000, align='center', color='white', edgecolor='black', hatch="*")
+	rects5 = ax.bar(7, total_st_placed_normal_spc_sum/1000, align='center', color='white',edgecolor='black', hatch="X")
+	rects6 = ax.bar(8, total_st_placed_dream_spc_sum/1000, align='center', color='white',edgecolor='black', hatch="+")
 
 	# add some text for labels, title and axes ticks
-	ax.set_ylabel('Total Student Placed')
+	ax.set_ylim(top=1200)
+	ax.set_ylabel('Total Students Placed')
 	ax.set_title('Total Students Placed Comparison')
-	ax.set_xticks(ind + width / 2)
-	ax.set_xticklabels((''))
+	ax.set_xticks([1,2,4,5,7,8])
+	ax.set_xticklabels(['NE','DE','NR','DR','NSPC','DSPC'])
+	#ax.set_xticklabels((''))
+	ax.yaxis.grid(True)
 
-	ax.legend((rects1[0], rects2[0], rects3[0], rects4[0]), ('Normal Match',  'Dream Match', 'Normal Match with SPC', 'Dream Match with SPC'))
+	#ax.legend((rects1[0], rects2[0], rects3[0], rects4[0]), ('(a)',  '(b)', '(c)', '(d)'))
 
 	def autolabel(rects):
 	    """
@@ -830,7 +970,7 @@ def main():
 	    """
 	    for rect in rects:
 	        height = rect.get_height()
-	        ax.text(rect.get_x() + rect.get_width()/2., 0.5*height,
+	        ax.text(rect.get_x() + rect.get_width()/2., 1.03*height,
 	                '%d' % int(height),
 	                ha='center', va='bottom')
 
@@ -838,6 +978,9 @@ def main():
 	autolabel(rects2)
 	autolabel(rects3)
 	autolabel(rects4)
+	autolabel(rects5)
+	autolabel(rects6)
+	plt.tight_layout()
 	plt.show()
 
 
@@ -847,18 +990,23 @@ def main():
 	width = 0.2      # the width of the bars
 
 	fig, ax = plt.subplots()
-	rects1 = ax.bar(ind + width, 0, width, color='dimgray')
-	rects2 = ax.bar(ind + 2*width, oldies_placement_sum, width, color='darkgray')
-	rects3 = ax.bar(ind + 3.5*width, 0, width, color='lightgray')
-	rects4 = ax.bar(ind + 4.5*width, oldies_placement_spc_sum, width, color='tan')
+	rects1 = ax.bar(1, 0, align='center', color='white',edgecolor='black', hatch="o")
+	rects2 = ax.bar(2, oldies_placement_expected_sum/1000, align='center', color='white',edgecolor='black', hatch="|")
+	rects3 = ax.bar(4, 0, align='center', color='white',edgecolor='black', hatch=".")
+	rects4 = ax.bar(5, oldies_placement_sum/1000, align='center', color='white', edgecolor='black', hatch="*")
+	rects5 = ax.bar(7, 0, align='center', color='white',edgecolor='black', hatch="X")
+	rects6 = ax.bar(8, oldies_placement_spc_sum/1000, align='center', color='white',edgecolor='black', hatch="+")
 
 	# add some text for labels, title and axes ticks
-	ax.set_ylabel('Total Dream Options Utilised')
-	ax.set_title('Total Dream Options Utilised to Get Better Offers')
-	ax.set_xticks(ind + width / 2)
-	ax.set_xticklabels((''))
+	ax.set_ylim(top=1000)
+	ax.set_ylabel('Dream Options Used')
+	ax.set_title('Comparing # of Dream Options Used')
+	ax.set_xticks([1,2,4,5,7,8])
+	ax.set_xticklabels(['NE','DE','NR','DR','NSPC','DSPC'])
+	#ax.set_xticklabels((''))
+	ax.yaxis.grid(True)
 
-	ax.legend((rects1[0], rects2[0], rects3[0], rects4[0]), ('Normal Match',  'Dream Match', 'Normal Match with SPC', 'Dream Match with SPC'))
+	#ax.legend((rects1[0], rects2[0], rects3[0], rects4[0]), ('(a)',  '(b)', '(c)', '(d)'))
 
 	def autolabel(rects):
 	    """
@@ -866,7 +1014,7 @@ def main():
 	    """
 	    for rect in rects:
 	        height = rect.get_height()
-	        ax.text(rect.get_x() + rect.get_width()/2., 0.5*height,
+	        ax.text(rect.get_x() + rect.get_width()/2., 1.03*height,
 	                '%d' % int(height),
 	                ha='center', va='bottom')
 
@@ -874,6 +1022,9 @@ def main():
 	autolabel(rects2)
 	autolabel(rects3)
 	autolabel(rects4)
+	autolabel(rects5)
+	autolabel(rects6)
+	plt.tight_layout()
 	plt.show()
 	#done
 	# print ("total placed dream:::",total_st_placed_dream)

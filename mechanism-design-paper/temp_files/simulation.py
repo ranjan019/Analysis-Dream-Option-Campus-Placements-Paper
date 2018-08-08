@@ -1,4 +1,4 @@
-import numpy as np
+miport numpy as np
 import sys
 import random
 from random import shuffle
